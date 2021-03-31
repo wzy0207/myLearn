@@ -27,9 +27,8 @@
 * useReducer(???)
   - `const [state,dispatch]=useReducer(reducer,initialArg,init)`
     - 接收形如`function reducer(state,action){new state}`的 reducer 函数喝一个初始的 state 对象
-    * 返回 state 值，喝 dispatch 方法
+    * 返回 state 值，和 dispatch 方法
     - dispatch 方法调用 reducer，并传参数给 reducer，以 action.引用传入的参数
   * 初始 state 有两种方式
     - 直接指定初始 state,`const [state,dispatch]=useReducer(reducer,{count:0})`
     * 惰性初始化，将 init 函数作为 useReducer 的第三个参数传入，初始 state 被设置为 init(initialprop)
-    

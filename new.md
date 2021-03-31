@@ -28,3 +28,13 @@
 - new Date().toLocaleDateString() 将 date 对象的日期部分转换为字符串--->2021/3/25
 
 * new Date().toLocaleTimeString() 将 date 对象的时间部分转换为字符串--->下午 2：31：20
+
+### ++i，i++
+
+- i++
+  - `for (var i=1,i<3,i++)`,第一次循环，i++=1,i=2
+  * i++ 返回的是没有执行运算前的值
+
+* ++i
+  - ++i=2;i=2
+  * ++i 返回执行后的值
