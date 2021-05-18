@@ -1,101 +1,43 @@
+<!-- <html>
+ 
+<head>
+<title>HTML显示json字符串并且进行格式化</title>
+</head>
+ 
+<body>
+<p id="show_p">{ "name": "Brett", "address":"北京路23号", "email": "123456@qq.com" }</p>
+<pre id="out_pre"></pre>
+ 
+</body>
+<script type="text/javascript">
+ 
+　 var text = document.getElementById('show_p').innerText; //获取json格式内容
+  
+   var result = JSON.stringify(JSON.parse(text), null, 2);//将字符串转换成json对象
+ 
+   document.getElementById('out_pre').innerText= result ;
+　　
+ 
+</script>
+ 
+</html> -->
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <style>
-      #first {
-        color: red;
-      }
-      #seconde {
-        color: green;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- <ul id="first"></ul>
-    <script>
-      //   function addMessage(element, message) {
-      //     var messageElement = document.createElement("li");
-      //     messageElement.textContent = message;
-      //     element.appendChild(messageElement);
-      //   }
-      //   var first = document.querySelector("#first");
-      //   addMessage(first, "page loading");
-      //
-    </script>
-    //
-    <ul id="second">
-      //
-      <li>1</li>
-      //
-    </ul>
-    //
-    <script>
-      //   var second = document.querySelector("#second");
-
-      //   document.body.addEventListener("mousemove", function () {
-      //     addMessage(second, "mouse move");
-      //   });
-      //   document.body.addEventListener("click", function () {
-      //     addMessage(second, "mouse click");
-      //   });
-    </script> -->
-    <script>
-      // function getname1(name) {
-      //   "use strict";
-      //   return this;
-      // }
-      // function getname2(name) {
-      //   return this;
-      // }
-      // console.log(getname1());
-      // console.log(getname2());
-      // var nanja1 = {
-      //   getname1: function () {
-      //     return this;
-      //   },
-      // };
-      // var nanja2 = {
-      //   getname2: nanja1.getname1,
-      // };
-      // var identify = nanja2.getname2;
-      // console.log(nanja1.getname1());
-      // console.log(nanja2.getname2());
-      // console.log(identify());
-      // console.log(nanja1.getname1.call(nanja2));
-      // function Nanja() {
-      //   this.whoiam = () => this;
-      // }
-      // var nanja1 = new Nanja();
-      // var nanja2 = {
-      //   whoian: nanja1.whoiam,
-      // };
-      // console.log(nanja1.whoiam() === nanja1);
-      // console.log(nanja2.whoian() === nanja1);
-      // function Nanja() {
-      //   this.whoiam = function () {
-      //     return this;
-      //   }.bind(this);
-      // }
-      // var nanja1 = new Nanja();
-      // var nanja2 = {
-      //   whoami: nanja1.whoiam,
-      // };
-      // console.log(nanja1.whoiam() === nanja1);
-      // console.log(nanja2.whoami() === nanja1);
-      // var foo = 1;
-      // function bar() {
-      //   if (!foo) {
-      //     var foo = 10;
-      //   }
-      //   console.log(foo);
-      // }
-      // bar();
-      console.log(a);
-      var a = 1;
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    var o={a:1}
+    console.log(o);
+    function foo(){}
+    foo.prototype.a=1
+    var a=new foo()
+    console.log(foo.prototype);
+    console.log(a);
+  </script>
+</body>
 </html>

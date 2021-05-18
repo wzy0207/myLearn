@@ -32,3 +32,6 @@
   * 初始 state 有两种方式
     - 直接指定初始 state,`const [state,dispatch]=useReducer(reducer,{count:0})`
     * 惰性初始化，将 init 函数作为 useReducer 的第三个参数传入，初始 state 被设置为 init(initialprop)
+
+- useRef()
+  - useRef 返回一个可变的 ref 对象，其 .current 属性被初始化为传入的参数
