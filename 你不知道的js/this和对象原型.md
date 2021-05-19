@@ -32,13 +32,13 @@
             + bind()实现，bind返回一个新函数，函数中对传入的函数参数进行显示绑定
             + bind()实现柯里化
         + forEach(fn,obj)，forEach的第二个参数指定fn的this绑定对象
-    + new 绑定
+    + new 绑定,`var obj = new Base()`
         + 使用new调用的函数会返回一个新对象
         + new调用函数，执行如下操作
-            + 创建一个全新的对象
-            + 对这个对象执行原型链链接
-            + 将新对象绑定到函数调用的this
-            + 如果函数没有返回一个`对象`(返回基本数据类型会被忽略),返回新创建的对象
+            + 创建一个全新的对象 `var obj = {}`
+            + 对这个对象执行原型链链接 `obj.__proto__ = Base.prototyoe`
+            + 将新对象绑定到函数调用的this `Base.call(obj)`，即对新对象进行初始化
+            + 如果函数没有返回一个`对象`(返回基本数据类型会被忽略),返回新创建的对象 `return obj`
 + 优先级
     + 默认绑定优先级最低
     + 显示绑定高于隐式绑定
@@ -57,10 +57,10 @@
 + 软绑定
     + 当函数的this为默认绑定时，指定函数this为一个特定的对象
     + 不是默认绑定，则应用当前绑定规则
-    + `不理解实现`
 + this词法
     + 箭头函数中的this不会被改变，new操作符也不会改变箭头函数的this指向
-    + 箭头函数的this指向函数第一次被调用时所处的上下文
+    + 箭头函数的this根据外层(`函数或者全局`)作用域来决定
+    + 箭头函数根据当前的词法作用域来决定this的指向
 
 
 ## 对象
@@ -186,6 +186,8 @@
     + 对象只能复制引用，无法复制被引用的对象或者函数本身
 
 ## 原型--js中只有对象
++ [[Prototype]]机制就是存在于对象中的一个内部链接，它会引用其他对象
+    + 作用，如果在该对象没有找到需要的属性和方法，引擎就在关联的[[Prototype]]对象上继续查找，直到查到或者是查完整条原型链
 + [[Prototype]]
     + js中的对象有一个特殊的[[Prototype]]内置属性，对于其他对象的引用
         + 引用对象属性时，[[Get]]首先检查该对象本身有无此属性，没有则查询原型链
@@ -206,16 +208,67 @@
     + 隐式屏蔽
         + myobject.a++
             + myobject.a = myobject.a + 1,先查找原型获取值，在进行赋值，发生屏蔽
-+ 原型对象是构造函数才具有的，原型是所有对象都有的
-    + 普通函数不具有prototype属性，只有new了之后才会有
-        + 原型对象是在new调用函数时构建的
++ 原型对象是函数才具有的，原型是所有对象都有的
     + 原型对象--fun.prototype，引用原型对象
+        + 函数的原型存储在原型对象上，通过`func.prototype.__proto__`来访问
+        + 对象的原型存储在自身,`obj.__proto__`来访问
+        + `Foo.prototype`默认有一个`.constructor`属性，指向函数本身
+            + constructor并不表示被构造，它是函数声明时的默认属性，替换函数的prototype对象，新对象不具有constructor属性，需要使用Object.definePrototype手动添加
+            + 实例对象没有原型对象也就没有constructor属性，它引用的是原型链上的该属性
+            + .constructor是不可枚举的，但是它的值是可以改变的
     + 原型---new foo().__proto__,指向原型链
     + new创建的实例对象通过`__proto__`指向构造函数的原型对象    
-+ js中的没有复制机制，不能创建一个类的多个实例，只能创建多个互相关联的对象（prototype关联的是同一个对象）
++ js中没有复制机制，不能创建一个类的多个实例，只能创建多个互相关联的对象（prototype关联的是同一个对象）
     + new foo()没有直接创建关联，只是一个副作用
     + 直接创建关联，`Object.create()`
     + 原型继承，继承是复制，js中没有复制，只有关联
     + 差异继承，描述对象行为时，使用其不同于普遍描述的特质
 + 构造函数
-    + 
+    + js中没有构造函数，只有构造函数调用,new会劫持所有普通函数并用构造对象的形式调用它
+    + 当函数使用`new`时，函数调用会变成构造函数调用，并构造一个对象
++ （原型继承）
+    + Bar.prototype = Object.create( Foo.prototype )
+        + Object.create创建一个新对象，并将新对象的原型（__prpto__）关联到指定对象
+    + Bar.prototype = Foo.prototype
+        + 将Foo原型对象的引用赋值给Bar原型对象，修改Bar原型对象会影响Foo.prototype
+    + Bar.prototype = new Foo()
+        + 使用了Foo的构造函数调用，当Foo有一些副作用，会影响Bar的后代（稍作理解）
+        + function Foo(){this.name=name,this.age=age},都会传递给Bar的原型对象
+    + 关联原型对象的方法
+        + es6之前,`Bar.prototype = Object.create( Foo.prototype )`
+        + es6之后，`Object.setPrototypeOf(Bar.prototype,Foo.prototype)`
+    + 检查类关系，内省，检查对象的祖先
+        + `a instanceof Foo`,instanceof，检查在a的整条原型链上是否有指向Foo.prototype的对象
+            + 只能处理对象和函数之间的关系，a对象，Foo函数
+            + bind生成的硬绑定函数没有.prototype属性
+        + `Foo.prototype.isPrototypeOf(a)`,在a的整条原型链上是否出现过Foo.prototype
+            + `b.isPrototypeOf(a)`,判断两个对象的关系
+        + `Object.getPrototypeOf(a)`，获取a的原型链
+            + a.__proto__,获取原型链，__proto__ 不存在于对象本身，存在于prototype对象上
+                + __proto__ 实现：get和set方法，其中分别使用了`getPortotypeOf`和`setPrototypeOf`
++ 对象关联
+    + `var b = Object.create(a)`,创建一个新对象，并将新对象的原型设置为指定对象(将新对象关联到指定对象)，即`b.__proto__=a`
+        + 避免一些麻烦，用new调用函数会生成不必要的`.prototype`对象
+        + 垫片，创建一个空函数，将该函数的prototype属性设置成指定对象，返回这个函数的一个new对象
+    + 内部委托让代码设计更加清晰--`委托设计模式`
+        + `myobject.doColl = function(){this.coll()}`,myobject没有coll函数，使用的是委托
+        + 内部委托比直接委托更加清晰
+
+## 行为委托
++ js中原型链的本质就是对象之间的关联关系
++ 面向委托的设计
+    + 类理论，在父类中定义所有任务都有的行为，子类继承父类，并会添加一些特殊行为
+        + 类设计模式在继承时重写父类同名方法，实现多态
+        + 类是复制，复制父类的行为到子类
+    + 委托理论，子对象通过关联委托给父对象，在需要时进行委托，父对象包含所有任务可以使用的具体行为，对每个任务都定义一个对象来存储对应数据和行为
+        + `object.create()`创建关联
+        + js中没有类似类的抽象机制
+        + 对象关联风格的不同之处
+            + 在委托设计中最好把状态保存在委托者而不是委托目标上
+            + 类模式中故意使用同名方法来利用重写优势，委托行为中避免在不同级别原型链上使用相同的命名，尽量少使用容易被重写的方法名
+            + 委托行为意味着对象在找不到属性和方法时会把这个请求委托给另一个对象
+            + 委托行为最好在内部实现，不要直接暴露出去
+    + 互相委托时禁止的，当引用一个两边都不存在的属性，会在原型链上无限递归
+    + 调式--无意义，chrome跟踪对象内部的构造函数名称的方法是一个bug
+        + `var a = new Foo()`，a打印Foo{}
+        + `var a = Object.create( Foo )` , a打印Object{},或是打印修改后的Foo的constructor值

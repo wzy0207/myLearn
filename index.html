@@ -31,13 +31,83 @@
 </head>
 <body>
   <script>
-    var o={a:1}
-    console.log(o);
-    function foo(){}
-    foo.prototype.a=1
-    var a=new foo()
-    console.log(foo.prototype);
-    console.log(a);
+    // var o={a:1}
+    // console.log(o.prototype);
+    // function foo(){}
+    // console.log(foo);
+    // console.log(foo.prototype.__proto__);
+//     var obj = {
+//    a: () => {
+//        console.log(this)
+//    },
+//    b: function() {
+//       console.log(this)
+//    },
+//    c() {
+//       console.log(this)
+//    }
+// }
+// obj.a()
+// // 箭头函数使用的是外层代码的this绑定
+// obj.b()
+// obj.c()
+// function a(){
+//   return ()=>console.log(this);
+// }
+// var a=a()
+// a()
+// function a(){}
+// function b(){}
+// var c = a.bind(b)
+// console.log(c.prototype);
+// console.log(a.prototype);
+// console.log(b.prototype);
+// console.log(a);
+// console.log(c);
+// var C= new c()
+// console.log(C instanceof c);
+// console.log(C.__proto__);
+// console.log(Object.getPrototypeOf(c));
+// const person= {
+//   name:this.name,
+//   age:this.age,
+//   log(){
+//     console.log(this.name,this.age);
+//   }
+// }
+// const me=Object.create(person)
+// me.name='wangpangpang'
+// me.age=12
+// console.log(me);
+// function Car(make, model, year) {
+//   this.make = make;
+//   this.model = model;
+//   this.year = year;
+// }
+
+// const car1 = new Car('Eagle', 'Talon TSi', 1993);
+
+// console.log(car1.make);
+// // expected output: "Eagle"
+// console.log(car1)
+// console.log('script start');
+
+// setTimeout(function() {
+//   console.log('timeout1');
+// }, 1000);
+
+// new Promise(resolve => {
+//     console.log('promise1');
+//     resolve();
+//     setTimeout(() => console.log('timeout2'),0 );
+// }).then(function() {
+//     console.log('then1')
+// })
+
+// console.log('script end');
+function Foo(){}
+var a = new Foo()
+a
   </script>
 </body>
 </html>

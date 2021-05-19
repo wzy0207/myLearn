@@ -84,3 +84,7 @@
   * a.x=b=c,.操作符优先级高，先运算.操作符
     - a.x=[b=c],先运行 a.x 赋值，然后 b=c
   ## 赋值操作会返回等号右边的运算结果
+
+## arguments是一个类数组，只有length属性和索引元素的功能，不具有数组的其他属性
++ 将arguments类数组转换为真正数组
+  + `var args = [].slice.call(arguments)`
