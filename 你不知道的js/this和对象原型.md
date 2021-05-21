@@ -272,3 +272,85 @@
     + 调式--无意义，chrome跟踪对象内部的构造函数名称的方法是一个bug
         + `var a = new Foo()`，a打印Foo{}
         + `var a = Object.create( Foo )` , a打印Object{},或是打印修改后的Foo的constructor值
+
++ 比较思维模式
+    + 函数不仅有原型对象，还有原型链
+        + Foo.prototype
+        + Foo.__proto__，函数的原型链指向Function.prototype
+        + 函数的原型链首先指向Function()，然后指向Object()
+    + 原型链和原型对象不是一回事
+    + 函数也是对象，函数的[[Prototype]]属性关联在`Function.prototype`对象上,，所有函数都可以访问`Function.prototype`上的方法，call,apply,bind
++ JavaScript中没有真正的类，class通过[[prototype]]机制实现
+    + 类实现，this和prototype的使用
+        + 属性使用call初始化，方法使用原型进行关联
+    + class实现，function用class和constructor代替，class方法代替prototype，super代替call
+    + 委托设计
+        + 初始化方法和其他方法都写在兄弟对象中
+        + 使用原型关联对象，使用时进行委托调用
+        + 对象关联更好的支持关注分离原则，实例的创建和初始化不是一起执行
++ 更好的语法
+    + 抛弃定义中的function
+    + `var obj={ a(){},b(){} }`，简介的函数（方法）声明
+    + Object.create(obj)和Object.setPrototype(a,b)
+        + 前者创建一个原型关联在指定对象上的新对象，后者将a对象的原型关联到b对象上
+        + 前者创建对象，后者使用两个已存在的对象
+    + 缺点，反词法
+        + 匿名函数缺点，没有name标识符
+        + 简洁方法会给对应的函数对象设置一个内部的name属性，但是不能自我引用
+        + 只能使用obj.method()调用
+        + `var obj={bar(){},baz:function baz(){}}`===`var obj={bar:function(){}}`
+            + 简洁方法相当于给属性赋予了一个匿名函数表单式
+            + 对象中定义的函数是对象的私有属性
++ 自省
+    + 类模式是将子类函数的原型关联到父类函数的原型对象上
+    + 委托模式，是将子对象的原型关联到父对象上
+
+## 附录
++ es6的class解决了什么问题
+    + 使用extend不需要手动设置原型
+    + 使用super实现相对多态
+    + class字面语法不能声明属性
++ class陷阱
+    + class的实现原理仍然是基于原型的
+    + 修改父类原型对象的方法，所有实例都会受到影响
+    + class语法无法定义类成员的属性，只能定义方法
+    + class存在意外屏蔽问题
+    + super是静态绑定，可以通过toMethod()方法重新绑定
+
+
+
+## MDN
++ 类
+    + 类声明和类表达式
+        + class React {}
+        + var React = class {}
+        + 函数声明会提升，类声明不会提升
+    + 构造函数
+        + class React {constructor(){}}
+        + 用海创建和初始化一个类创建的对象
+    + 静态方法
+        + 写在类中，构造函数之外，前面用static关键字标识
+        + 静态方法只能被类本身调用，类的实例对象不能调用
+        + 静态的原型的数据属性必须定义在类定义的外面
+    + 实例属性即使constructor中定义的属性
+    + 原型方法
+        + 定义在类中构造函数之外
+    + 使用extends扩展子类
+        + 子类构造函数中使用super()调用父类构造函数
+        + 子类原型方法使用super().method()调用父类原型方法
+    + 不能多重继承，只能混入
++ 对象原型
+    + JavaScript--基于原型的语言
+        + 每个对象拥有一个原型对象，对象一起原型为模板，从原型继承方法和属性
+        + 原型对象也可能拥有原型，并从中继承方法和属性，一层一层，被成为原型链
+        + JavaScript是在对象实例和它的构造器之间建立一个链接（__proto__ 属性，是从构造函数的prototype属性派生的）
+            + 对象原型是每个实例`对象`都有的属性(__proto__)
+            + prototype属性不是，他是构造`函数`的属性，每个函数都有一个特殊的默认属性叫做原型（prototype）
+    + 使用JavaScript中的原型
+        + 函数不能直接使用自己原型对象上的方法
+            + `function foo(){},foo.prototype.a="123"`,a只能通过foo.prototype.a来引用，不能使用foo.a引用
+            + 函数没有定义a，函数定义了prototype属性，prototype定义了a
+        + prototype属性，继承成员被定义的地方
+            + 当使用new调用函数构造实例时，只有prototype中的属性会被实例引用，因为实例的原型被关联在函数的prototype对象上，而不是整个函数上
+        + prototype属性包含一个对象
+            + 原型对象是该对象关联的原型,是一个内部对象，用`__proto__`访问
