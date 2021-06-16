@@ -184,6 +184,7 @@
         + 内置符号
             + 内置符号不会注册在全局符号表里
             + 规范使用 @@ 前缀记法指代内置符号 ，@@iterator，@@toStringTag，@@toPrimitive
+
 ## 代码组织
 + 迭代器 -- 迭代器是一种有序的、连续的、基于拉取的用于消耗数据的组织方式
     + 迭代器接口包括一个必须的 next() 方法，用于迭代返回数据还有两个可选方法 return(), throw(), return 用于停止迭代器， throw 用于向迭代器报告一个异常，这些方法都返回 IteratorResult
@@ -222,3 +223,198 @@
         + 迭代器控制
             + `for(var v of foo())` , for..of 需要 iterable，生成器函数自己并不是一个 iterable ，需要调用才能得到一个迭代器
             + next() 比 yield 多一次是用来启动生成器
+        + 提前完成
+            + return() 强制迭代器完成，并传递给生成器要返回的值，执行 return 会触发 try 的 finally 语句
+            + 生成器每次调用都产生一个全新的迭代器，多个迭代器可以附着在同一个生成器上
+            + thorw() 向迭代器抛入异常，若迭代器内未捕获会传给调用代码
+        + 错误处理
+            + 生成器内部有处理错误逻辑，处理抛入的异常后继续执行生成器代码
+            + 生成器内部向外抛出异常需要 try..catch 捕获
+            + 错误也可以通过 yield * 委托在两个方向上传播
+        + Transpile 生成器
+            + 手动实现生成器 switch..case..state
+        + 生成器使用
+            + 产生一系列值
+            + 顺序执行的任务队列
++ 模块
+    + ES6 模块
+        + import export
+        + export，模块导出不只是值或者引用的普通赋值，实际上导出的是对这些东西的绑定
+            + export function foo(){} ，export var a =2 
+                + 命名导出
+            + export { foo as bar } ，重命名导出时，只有 bar 可以导入
+            + 每个模块定义只有一个 default ，默认导出
+                + `默认导出的值不会在之后修改中改变`，导出时是什么就永远是什么，命名导出的导出值随该值变化而变化
+        + import 导入
+            + 导入命名导出 import { `foo`, `bar` } from 'foo' ,foo 和 bar 必须匹配 foo
+            模块中的命名导出，可以对标识符重命名 import { foo as exp } from 'foo'
+            + 默认导出不需要使用 {} 包围， import foo from 'foo'
+                + 命名导出必须使用 {} 导入
+            + import default { foo, bar } from 'foo' ，命名导出和默认导出可以一起导入
+            + import * as foo from 'foo' 导入模块中的所有导出，使用 `foo.default` 调用默认导出
+            + 所有导入的绑定都是不可变的，不能重新赋值
+            + import 导入的声明是提升的，会被提升到当前作用域的顶层
+        + 模块依赖环，import 解析 ，A 导入 B ，B 导入 A
+            + 加载模块 A ，扫描该模块所有的导出，这样可以注册所有可以导入的绑定，然后处理 import.. from .. 'B'
+            + 对 B 的导出绑定进行同样的分析，当分析到 import..from 'A'时，引擎已经了解 A 的 API，验证 A 的 import 是否有效，然后验证等待的 A 模块中导入 B 的有效性
++ 类
+    + class
+        + class Foo { constructor( a, b ){}}, constructor 指定 Foo 函数的签名以及函数体内容
+        + 类方法不可枚举
+        + class 定义内部不用逗号分隔成员
+        + 用 class 定义的函数必须用 new 调用，也不存在提升，也捕获创建同名全局对象属性
+    + extends， super
+        + extends 将子构造器的原型委托到父构造器上
+        + super 指向父构造器，super() 调用父类构造函数， super.get() 调用父类的原型方法
+        + super 是静态绑定的，不会随调用对象改变
+    + 子类构造器
+        + 构造器并不是类必须的，省略会自动提供默认构造器
+        + 子类默认自动调用父类并传递所有参数，子类构造器中`调用 super 之后才能访问 this`
+    + 扩展原生类
+        + 构造原生类的子类得以实现
+    + new.target -- 元属性
+        + new.target 在所有函数中都可用，总是`指向 new 实际上直接调用的构造器`,不论定义在哪
+        + 普通函数为 undefined
+    + static
+        + 静态函数只能用类名调用，实例对象不能调用
+        + Symbol.species 
+            + 父类构造新实例不想使用子类构造器本身，这个功能使得子类可以通知父类应使用哪个构造器
+            + 即设定构造出来的实例是谁的实例，不设定是该构造函数，设定了之后为设定值的实例
+            + 用 `instanceof` 判断子类构造出来的是父类的实例
+
+## 异步流控制
++ Promise
+    + Promise 不是对回调的替代，Promise 在回调代码和将要执行这个任务的异步代码间提供了一种可靠的中间机制来管理回调
+    + Promise只能被决议一次，之后不可变
+    + fulfilled 内部的异常不会被同层次的 reject 捕获，因为同层的 reject 是捕获上一个 promise 的决议的，此时，promise 已经决议到 fulfilled ，不能被更改
++ Thenable  
+        + promise.resolve() 用来解决 thenable 的信任问题
+    + 生成器 + promise 是更好的异步流控制表达方式
+
+## 集合
++ TypedArray
+    + 大小端，大端高位字节在前，小端高位字节在后
+    + 多视图  
+    + 带类数组构造器
++ Map -- var m = new Map()
+    + 对象不能使用非字符串值作为键
+    + m.set(),m.get() 用来设置和获取键值对
+        + m.set(key,value),m.get(key)
+        + m.delete(key) ，删除
+    + 可以在 Map 构造器中指定一个 键值数组的数组 [[key1,value1],[key2,value2]]
+    + Map 值
+        + m.has(value) 返回 boolean 确认集合中是否有这个值存在
+    + WeakMap   
+        + WeakMap 只接受对象作为键，这些对象是弱持有的，值不是弱持有的
+    + Set -- var s = new Set() ,是一个值的集合
+        + s.add(value) 向集合添加一个值
+        + s.has(value) 判断集合有无该值
+        + s.entries() 迭代器返回一列项目数组，数组的两个项目都是唯一 set 值
+            + [ [value1, value1], [value2, value2]]
+        + WeakSet 弱持有它的值，当它的值是该引用对象的唯一引用，在引用改变时，引用的对象被回收
+            + WeakSet 的值必须是对象
+
+## 新增 API
++ Array
+    + Array.of(1,2,3) 创建数组，传入单个值时，创建有一个值的数组, [1, 2, 3]
+        + Array.of(3)  [ 3 ]
+    + 静态函数 Array.form() 产生新数组
+        + 参数为 iterable 时，使用这个迭代器产生值并复制到新产生的数组
+        + 永远不会产生空槽位，Array.from({length:4}) 生成长度为4，值都为 undefined 的数组
+        + 第二个参数是一个函数，对数组的每个值进行操作，像 map 一样
+    + 创建数组和子类型
+        + from， of 都使用它们的构造器来构造数组，创造的实例是调用它们时的构造器的实例，`不会更改`
+    + 原型方法 copyWith(target, start, end)
+        + target 为要复制到的索引，start 时开始索引(包含)，end 不包含
+    + fill() 方法 填充数组
+    + find() 方法，返回匹配要求的元素，参数是函数，要找的元素符合的要求
+    + findIndex(), 需要严格匹配索引值，使用indexOf , 需要自定义匹配的索引值，使用findIndex
+    + entries()、value()、keys()、 [1, 2, 3]
+        + entries() 返回键值对数组组成的数组 [ [0, 1], [1, 2], [2, 3]]
++ Object
+    + Object.is()   
+        + Object.is(NaN, NaN) 返回true
+        + Object.is(0, -0) 返回false
+    + Object.getOWnPropertySybol()
+    + Object.setPrototypeOf(obj1, obj2) 将 obj1 的原型委托的 obj2
+    + Object.assign(target, obj1, obj2)  obj1, obj2 的自己拥有的可枚举键值通过 = 赋值被复制到target 中
++ Number
+    + Number.parseInt(), Number.ParseFloat()
+    + Number.isNaN() 判断是否为 NaN
+    + Number.isFinite()
+    + Number.isInteger() 
++ 字符串
+    + String.raw `` 与标签模板字面值一起使用，获得不经任何转义的原始字符串
+    + repeat() ,str.repeat() 用来重复字符串
+
+## 元编程 -- 指操作目标是程序本身的行为特性的编程
++ 函数名称
+    + 立即执行函数没有 name
+    + window.foo = function(){} 没有 name
+    + new Function() 创建的函数 name 为 anonymous 
++ 元属性
+    + 元属性以属性访问的形式提供特殊的其他方法无法获取的元信息
++ 公开符号 -- 提供专门的元属性
+    + Symbol.iterator 迭代逻辑
+    + Symbol.toStringTag 与 Symbol.hasInstance
+        + Symbol.toStringTag 制定了在 [Object ___ ] 字符串化时的值
+        + Symbol.hasInstance 方法接收实例对象，通过返回 true 或 false 来指示这个值是否可以被认为是一个实例，指定实例 instanceof 的判定条件
+    + Symbol.species
+        + 控制实例是哪个构造器的实例，虽然是这个构造器生成的实例，但是可以指定该实例是其他构造器的实例
+    + Symbol.toPrimitive
+        + 用在对象为了某操作必须被强制类型转换为一个原生类型值的时候
+    + 正则表达式符号
+        + @@match
+        + @@repalce
+        + @@search
+        + @@split
+    + Symbol.isConcatSpreadable
+        + 用来指示如果把他传给一个数组的 concat() 是否应该将其展开
+    + Symbol.unscopables
+        + 用来指示使用 with 语句时该对象的哪些属性可以暴露为词法变量， true 时，不可用于 with 作用域
++ 代理
+    + 代理是一个特殊对象，它封装另一个普通对象，或者说挡在这个普通对象的前面
+    + 可以在代理中注册特殊的处理函数，将操作转发给原始目标还可以执行额外的逻辑
+    + 代理局限性 -- 下列操作不会由代理拦截
+        + typeof
+        + string
+        + obj + ""
+        + obj == pobj
+        + obj === pobj
+    + 可取消代理
+        + Proxy.revocable( obj, handlers) 返回一个对象，一个代理对象，一个取消方法
+    + 使用代理  
+        + 代理在先，首先与代理交互
+        + 代理在后，将代理对象放到主对象的原型链上，主对象上无法实现的逻辑放到代理对象逻辑中
+        + 没有这个属性和方法，代理中处理属性访问逻辑，主对象没有该属性，抛出自定义异常
+            + 此时使用代理在后逻辑较简单，只要访问到代理，就抛出异常，不用特殊逻辑
+        + 代理 hack 原型链
+            + 给对象设定一个符号指向要设定的原型链对象，在代理中设置逻辑，对象本身无属性寻找自定义的原型链对象
+            + 伪装多个原型链对象，设定符号为要设定的原型对象数组，在代理中遍历数组进行查找
++ Reflect API
+    + Reflect 对象是一个普通的对象，持有各种可控的元编程任务的静态函数
+    + 属性排序
+        + Reflect.ownKeys()，以及扩展的 Object.getOwnPropertyNames() 和Object.getOwnPropertySymbols() 的顺序是可预测且可靠的
+            + 首先，按照数字升序排序
+            + 其次，按照创建顺序枚举其余字符串属性
+            + 最后，按创建顺序枚举符号属性
+    + Reflect.enumerate(), for..in ，遍历自身和原型链， Object.keys() 和 JSON.stringify()，只遍历自身
++ 特性测试
+    + 分批发布技术，测试环境能否支持 ES6 ，不支持加载使用 transpile 代码，支持使用 ES6 代码
+    + FeatureTests.io
++ 尾递归调用
+    + 非尾递归调用导致递归栈溢出
+    + 尾调用是一个用 return 函数() 结束的函数，除了调用后返回其返回值之外没有任何其他的动作
+    + `非尾调用优化` -- trampolining
+        + 相当于把每个部分用一个函数标识，这些函数返回另外一个部分结果函数，或者返回最终结果，然后循环直到得到的结果不是函数
+    + 自适应代码
+        + 使用 while 循环包裹 try..catch 语句，捕获异常后不处理异常，继续循环直到条件结束
+
+## ES6 之后
++ 异步函数
+    + async await
+    + 没有办法从外部取消一个正在运行的 async function 实例
++ Object.observe()
++ 幂运算
++ 对象属性与...
+    
